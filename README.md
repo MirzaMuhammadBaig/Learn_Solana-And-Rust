@@ -29,14 +29,14 @@ let mut my_mutable_variable = 0;
 
 ```
 OBJECT	     CASING
-Variables	snake_case
-Functions	snake_case
-Files	    snake_case
-Constants	SCREAMING_SNAKE_CASE
-Statics	    SCREAMING_SNAKE_CASE
-Types	    PascalCase
-Traits	    PascalCase
-Enums	    PascalCase
+Variables	   snake_case
+Functions	   snake_case
+Files	       snake_case
+Constants	   SCREAMING_SNAKE_CASE
+Statics	     SCREAMING_SNAKE_CASE
+Types	       PascalCase
+Traits	     PascalCase
+Enums	       PascalCase
 ```
 
 - Since Rust is statically typed, you'll need to explicitly type variables – unless the variable is declared with "let" and the type can be inferred.
