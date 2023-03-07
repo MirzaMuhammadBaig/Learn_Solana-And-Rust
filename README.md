@@ -28,15 +28,15 @@ let mut my_mutable_variable = 0;
 ### Rust convention relies on the following casing conventions:
 
 ```
-OBJECT	     CASING
-Variables	   snake_case
-Functions	   snake_case
-Files	       snake_case
-Constants	   SCREAMING_SNAKE_CASE
-Statics	     SCREAMING_SNAKE_CASE
-Types	       PascalCase
-Traits	     PascalCase
-Enums	       PascalCase
+OBJECT	      CASING
+Variables     snake_case
+Functions     snake_case
+Files	        snake_case
+Constants     SCREAMING_SNAKE_CASE
+Statics	      SCREAMING_SNAKE_CASE
+Types	        PascalCase
+Traits	      PascalCase
+Enums	        PascalCase
 ```
 
 - Since Rust is statically typed, you'll need to explicitly type variables – unless the variable is declared with "let" and the type can be inferred.
@@ -255,3 +255,219 @@ fn main() {
 ```
 
 - The ampersand (&) indicates that the value is a reference. That is, second_string no longer takes ownership of "freeCodeCamp", but, instead, points to the same point in memory as first_string.
+
+## Project #1 – Build a CLI Calculator in Rust
+
+### Project Outcome
+
+- At the end of this project, you will be able to perform basic arithmetic operations on numbers using the command line.
+
+- Examples of expected input and output look like this:
+
+```
+$ calculator 1 + 1
+$ 1 + 1 = 2
+
+$ calculator 138 / 4
+$ 138 / 4 = 34.5
+```
+
+## CLI Calculator Project Methodology
+
+### Step 1 – Create a New Project
+
+- Use Cargo to create a new project named calculator:
+
+```
+$ cargo new calculator
+```
+
+- This creates a new directory named calculator, initialises it as a Git repository, and adds useful boilerplate for your project.
+
+- The boilerplate includes:
+
+1. "Cargo.toml" – The manifest file used by Cargo to manage your project's metadata
+2. "src/" – The directory where your project code should live
+3. "src/main.rs" – The default file Cargo uses as your application entrypoint
+
+### Step 2 – Understand the Syntax
+
+- The calculator/Cargo.toml file contains the following:
+
+```
+[package]
+name = "calculator"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+```
+
+- The "package" denotes your project's metadata.
+
+- The "dependencies" heading denotes the crates your project depends on. Crates are like external libraries.
+
+- The calculator/src/main.rs file contains the following:
+
+```
+fn main() {
+  println!("Hello world!");
+}
+```
+
+- This file contains a function declaration with the handle main. By default, rustc calls the main function first whenever the executable is run.
+
+- println! is a built-in macro which prints to the console.
+
+### Step 3 – Run the Project
+
+- You can either use Cargo to run your project code:
+
+```
+# Within the calculator/ directory
+$ cargo run
+   Compiling fcc-rust-in-replit v0.1.0 (/ / /Rust-in-Replit-1)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.80s
+     Running `target/debug/calculator`
+Hello, world!
+```
+
+- Or, you can use rustc to compile your project, then you can run the binary:
+
+```
+# Within the calculator/ directory
+$ rustc src/main.rs
+$ ./main
+Hello, world!
+```
+
+### Step 4 – Command Line Arguments
+
+- The Rust standard library comes with an env module, which allows access to the command line arguments passed when calling the program.
+
+- The necessary exports from the env module are the args function, and the Args struct. The args function returns an instance of the Args struct, and is imported into the file scope with:
+
+```
+use std::env::{args, Args};
+```
+
+- To get an idea of what the Args struct looks like, the args variable is printed to the console:
+
+```
+fn main() {
+  let args: Args = args();
+  println!("{:?}", args);
+}
+```
+
+```
+$ cargo run -- fCC
+   Compiling calculator v0.1.0 (/home/runner/Rust-in-Replit/calculator)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.71s
+     Running `target/debug/calculator`
+Args { inner: ["target/debug/toto", "fCC"] }
+```
+
+- The above shows that the Args struct contains a field called inner which consists of the location of the compiled binary, and the command line arguments passed to the program.
+
+- To access the argument values, you can use the nth method on the args variable. The nth method takes an index argument, and returns the value at that index wrapped in an Option. So, the value needs to be unwrapped.
+
+```
+fn main() {
+  let mut args: Args = args();
+
+  let first: String = args.nth(1).unwrap();
+}
+```
+
+- The args variable needs to be declared as mutable, because the nth method mutable iterates over the elements, and removes the element accessed.
+
+```
+fn main() {
+  let mut args: Args = args();
+
+  // The first argument is the location of the compiled binary, so skip it
+  let first: String = args.nth(1).unwrap();
+  // After accessing the second argument, the iterator's next element becomes the first
+  let operator: String = args.nth(0).unwrap();
+  let second: String = args.nth(0).unwrap();
+
+  println!("{} {} {}", first, operator, second);
+}
+```
+
+```
+$ cargo run -- 1 + 1
+   Compiling calculator v0.1.0 (/home/runner/Rust-in-Replit/calculator)
+    Finished dev [unoptimized + debuginfo] target(s) in 1.71s
+     Running `target/debug/calculator`
+1 + 1
+```
+
+### Step 5 – Parse Strings into Numbers
+
+- The first and second variables are strings, and you need to parse them into numbers. The String struct implements the parse method, which takes a type annotation, and returns a Result containing the parsed value.
+
+```
+use std::env::{args, Args};
+
+fn main() {
+  let mut args: Args = args();
+
+  let first: String = args.nth(1).unwrap();
+  let operator: String = args.nth(0).unwrap();
+  let second: String = args.nth(0).unwrap();
+
+  let first_number = first.parse::<f32>().unwrap();
+  let second_number = second.parse::<f32>().unwrap();
+
+  println!("{} {} {}",first_number, operator, second_number);
+}
+```
+
+- The above parse method uses the turbofish syntax to specify the type to try to parse the string into.
+
+### Step 6 – Perform Basic Arithmetic Operations
+
+- Rust uses the standard operators for addition, subtraction, multiplication, and division.
+
+- To handle the operations, you define a function named operate which will take three arguments: the operator as a char, and the two numbers as f32s. The function should also return an f32 representing the outcome of the operation.
+
+```
+fn operator(operator: char, first_number: f32, second_number: f32) -> f32 {
+  match operator{
+    '+' => first_number + second_number,
+    '-' => first_number - second_number,
+    '/' => first_number / second_number,
+    '*' | 'x' | 'X' => first_number * second_number,
+    _ => panic!("Invalid operator used"),
+  }
+}
+```
+
+- The match expression works similarly to a switch statement in other languages. The match expression takes a value, and a list of arms. Each arm is a pattern and block. The pattern is a value to match against, and the block is the code to execute if the pattern matches. The _ pattern is a wildcard, acting like an else clause.
+
+- The multiplication arm includes the OR comparison to allow cases for X and x to be handled.
+
+- Now, to call operate with the operator, you need to converted it into a char first. You do this with the chars method on the String struct which returns an iterator over the characters in the string. Then, the first character is unwrapped:
+
+```
+fn main() {
+  let mut args: Args = args();
+
+  let first: String = args.nth(1).unwrap();
+  let operator: char = args.nth(0).unwrap().chars().next().unwrap();
+  let second: String = args.nth(0).unwrap();
+
+  let first_number = first.parse::<f32>().unwrap();
+  let second_number = second.parse::<f32>().unwrap();
+  let result = operator(operator, first_number, second_number);
+
+  println!("{} {} {}", first_number, operator, second_number);
+}
+```
+
+- The return of operate is stored in the result variable.
+
